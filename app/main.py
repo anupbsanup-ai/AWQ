@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, FileResponse
@@ -7,8 +7,10 @@ import os
 
 from app.config import get_settings
 from app.routers import voice, appointment, crm
+from app.agent.conversation import ConversationManager
 
 settings = get_settings()
+conversation_manager = ConversationManager()
 
 # Create FastAPI app
 app = FastAPI(
@@ -142,6 +144,27 @@ async def dashboard():
     if os.path.exists(dashboard_path):
         return FileResponse(dashboard_path)
     return {"error": "Dashboard not found"}
+
+
+@app.get("/chat")
+async def chat_page():
+    """Serve the chat HTML interface."""
+    chat_path = os.path.join(static_dir, "chat.html")
+    if os.path.exists(chat_path):
+        return FileResponse(chat_path)
+    return {"error": "Chat page not found"}
+
+
+@app.post("/api/v1/chat")
+async def chat(message: dict = Body(...)):
+    """Chat endpoint for text-based AI receptionist."""
+    user_message = message.get("message", "")
+    if not user_message:
+        return {"reply": "Hello! How can I help you with your dental care today?"}
+    
+    # Process through conversation manager
+    response = await conversation_manager.process_message(user_message)
+    return {"reply": response}
 
 
 @app.get("/api/v1/agent/config")
