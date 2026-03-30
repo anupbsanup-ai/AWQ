@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: dental-receptionist-ai
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: DATABASE_URL
+        value: sqlite:///data/dental_receptionist.db
+      - key: CLINIC_NAME
+        value: Chicago Dental 312
+      - key: CLINIC_PHONE
+        value: (312) 555-0123
+      - key: CLINIC_EMAIL
+        value: appointments@chicagodental312.com
+      - key: CLINIC_ADDRESS
+        value: 123 Dental Ave, Chicago, IL 60601
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

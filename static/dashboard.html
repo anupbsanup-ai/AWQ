@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chicago Dental 312 - AI Receptionist Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-top: 8px;
+        }
+        
+        .stat-card .change {
+            font-size: 13px;
+            color: #4ade80;
+            margin-top: 4px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section h2 .icon {
+            width: 24px;
+            height: 24px;
+            background: #f0f2f5;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        
+        th {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-scheduled {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .badge-confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-new {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .badge-converted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-emergency {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a67d8;
+        }
+        
+        .btn-secondary {
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab:hover:not(.active) {
+            background: #f0f2f5;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Chicago Dental 312 - AI Receptionist</h1>
+        <div class="status">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="label">Today's Calls</div>
+                <div class="value" id="today-calls">-</div>
+                <div class="change">AI handled</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">New Leads</div>
+                <div class="value" id="new-leads">-</div>
+                <div class="change">This week</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Appointments</div>
+                <div class="value" id="appointments">-</div>
+                <div class="change">Scheduled</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Conversion Rate</div>
+                <div class="value" id="conversion-rate">-</div>
+                <div class="change">Calls to bookings</div>
+            </div>
+        </div>
+        
+        <!-- Leads Section -->
+        <div class="section">
+            <h2>
+                <span class="icon">👥</span>
+                Recent Leads
+            </h2>
+            <div class="tabs">
+                <button class="tab active" onclick="filterLeads('all')">All</button>
+                <button class="tab" onclick="filterLeads('new')">New</button>
+                <button class="tab" onclick="filterLeads('scheduled')">Scheduled</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-table">
+                    <tr><td colspan="6" class="loading">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Appointments Section -->
+        <div class="section">
+            <h2>
+                <span class="icon">📅</span>
+                Upcoming Appointments
+            </h2>
+            <div class="actions" style="margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="loadAppointments('today')">Today</button>
+                <button class="btn btn-secondary" onclick="loadAppointments('week')">This Week</button>
+                <button class="btn btn-secondary" onclick="loadAppointments('all')">All</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Notifications</th>
+                    </tr>
+                </thead>
+                <tbody id="appointments-table">
+                    <tr><td colspan="6" class="loading">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- FAQ Section -->
+        <div class="section">
+            <h2>
+                <span class="icon">❓</span>
+                FAQ Knowledge Base
+            </h2>
+            <div id="faq-list">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '/api/v1';
+        
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load CRM stats
+                const statsRes = await fetch(`${API_BASE}/crm/stats`);
+                const stats = await statsRes.json();
+                
+                document.getElementById('new-leads').textContent = stats.total_leads || 0;
+                document.getElementById('conversion-rate').textContent = 
+                    stats.by_status?.converted > 0 
+                        ? Math.round((stats.by_status.converted / stats.total_leads) * 100) + '%'
+                        : '0%';
+                
+                // Load appointments count
+                const apptsRes = await fetch(`${API_BASE}/appointment/list?limit=1`);
+                const appts = await apptsRes.json();
+                document.getElementById('appointments').textContent = appts.length || 0;
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+        
+        // Load leads
+        async function loadLeads(status = 'all') {
+            try {
+                const url = status === 'all' 
+                    ? `${API_BASE}/crm/leads?limit=50`
+                    : `${API_BASE}/crm/leads?status=${status}&limit=50`;
+                
+                const res = await fetch(url);
+                const leads = await res.json();
+                
+                const tbody = document.getElementById('leads-table');
+                
+                if (leads.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No leads found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = leads.map(lead => `
+                    <tr>
+                        <td>${lead.name}</td>
+                        <td>${lead.phone}</td>
+                        <td>${lead.email || '-'}</td>
+                        <td>${lead.reason || '-'}</td>
+                        <td><span class="badge badge-${lead.status}">${lead.status}</span></td>
+                        <td>${new Date(lead.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('leads-table').innerHTML = 
+                    '<tr><td colspan="6" class="error">Failed to load leads</td></tr>';
+            }
+        }
+        
+        // Filter leads
+        function filterLeads(status) {
+            // Update tab styles
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            loadLeads(status);
+        }
+        
+        // Load appointments
+        async function loadAppointments(filter = 'today') {
+            try {
+                let url = `${API_BASE}/appointment/list?limit=50`;
+                
+                if (filter === 'today') {
+                    const today = new Date().toISOString().split('T')[0];
+                    url += `&date=${today}`;
+                }
+                
+                const res = await fetch(url);
+                const appointments = await res.json();
+                
+                const tbody = document.getElementById('appointments-table');
+                
+                if (appointments.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No appointments found</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = appointments.map(appt => `
+                    <tr>
+                        <td>${appt.name}</td>
+                        <td>${new Date(appt.appointment_date).toLocaleDateString()}</td>
+                        <td>${appt.appointment_time}</td>
+                        <td>${appt.reason || 'General'}</td>
+                        <td><span class="badge badge-${appt.status}">${appt.status}</span></td>
+                        <td>
+                            ${appt.sms_sent ? 'SMS Sent ' : ''}
+                            ${appt.email_sent ? 'Email Sent' : ''}
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('appointments-table').innerHTML = 
+                    '<tr><td colspan="6" class="error">Failed to load appointments</td></tr>';
+            }
+        }
+        
+        // Load FAQ
+        async function loadFAQ() {
+            try {
+                const res = await fetch(`${API_BASE}/crm/faq`);
+                const faqs = await res.json();
+                
+                const container = document.getElementById('faq-list');
+                
+                container.innerHTML = faqs.map((faq, i) => `
+                    <div style="padding: 16px; border-bottom: 1px solid #f0f2f5;">
+                        <strong style="color: #667eea;">Q${i+1}: ${faq.question}</strong>
+                        <p style="margin-top: 8px; color: #666;">${faq.answer}</p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('faq-list').innerHTML = 
+                    '<div class="error">Failed to load FAQ</div>';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            loadLeads();
+            loadAppointments();
+            loadFAQ();
+            
+            // Refresh every 30 seconds
+            setInterval(() => {
+                loadDashboard();
+                loadLeads();
+                loadAppointments();
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+app = "chicago-dental-312-ai"
+primary_region = "ord"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+  DEBUG = "false"
+  CLINIC_NAME = "Chicago Dental 312"
+  CLINIC_PHONE = "(312) 555-0123"
+  CLINIC_EMAIL = "appointments@chicagodental312.com"
+  CLINIC_ADDRESS = "123 Dental Ave, Chicago, IL 60601"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+[mounts]
+  source = "data"
+  destination = "/data"
