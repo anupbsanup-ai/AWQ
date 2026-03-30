@@ -7,10 +7,8 @@ import os
 
 from app.config import get_settings
 from app.routers import voice, appointment, crm
-from app.agent.conversation import ConversationManager
 
 settings = get_settings()
-conversation_manager = ConversationManager()
 
 # Create FastAPI app
 app = FastAPI(
@@ -158,13 +156,24 @@ async def chat_page():
 @app.post("/api/v1/chat")
 async def chat(message: dict = Body(...)):
     """Chat endpoint for text-based AI receptionist."""
-    user_message = message.get("message", "")
+    user_message = message.get("message", "").lower()
+    
     if not user_message:
         return {"reply": "Hello! How can I help you with your dental care today?"}
     
-    # Process through conversation manager
-    response = await conversation_manager.process_message(user_message)
-    return {"reply": response}
+    # Simple response logic for chat
+    if "appointment" in user_message or "book" in user_message:
+        return {"reply": "I'd be happy to help you book an appointment! Please call us at (312) 555-0123 or visit our office at 123 Dental Ave, Chicago, IL 60601."}
+    elif "emergency" in user_message or "pain" in user_message:
+        return {"reply": "If this is a dental emergency, please call us immediately at (312) 555-0123. We prioritize urgent cases and will see you as soon as possible."}
+    elif "price" in user_message or "cost" in user_message or "insurance" in user_message:
+        return {"reply": "We accept most major insurance plans. For specific pricing questions, please call (312) 555-0123 and our team will help you."}
+    elif "hours" in user_message or "open" in user_message:
+        return {"reply": "We're open Monday-Friday 9am-6pm, Saturday 10am-2pm. Closed Sundays."}
+    elif "location" in user_message or "address" in user_message:
+        return {"reply": "We're located at 123 Dental Ave, Chicago, IL 60601."}
+    else:
+        return {"reply": "I can help you with appointment booking, emergency care, pricing, or our hours. What would you like to know?"}
 
 
 @app.get("/api/v1/agent/config")
