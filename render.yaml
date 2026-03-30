@@ -11,7 +11,7 @@ services:
       - key: DEBUG
         value: false
       - key: DATABASE_URL
-        value: sqlite:///data/dental_receptionist.db
+        value: sqlite:////data/dental_receptionist.db
       - key: CLINIC_NAME
         value: Chicago Dental 312
       - key: CLINIC_PHONE
